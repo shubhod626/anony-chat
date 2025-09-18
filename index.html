@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anonymous Chat</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f1f5f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .chat-container {
+      width: 400px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .chat-header {
+      background: #2563eb;
+      color: white;
+      padding: 15px;
+      text-align: center;
+      font-weight: bold;
+    }
+    .chat-messages {
+      flex: 1;
+      padding: 10px;
+      overflow-y: auto;
+      background: #f9fafb;
+    }
+    .message {
+      margin: 8px 0;
+      padding: 10px;
+      background: #e2e8f0;
+      border-radius: 8px;
+    }
+    .chat-input {
+      display: flex;
+      border-top: 1px solid #ddd;
+    }
+    .chat-input input {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      outline: none;
+    }
+    .chat-input button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      cursor: pointer;
+    }
+    .chat-input button:hover {
+      background: #1e40af;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <div class="chat-header">💬 Anonymous Chat</div>
+    <div class="chat-messages" id="messages"></div>
+    <div class="chat-input">
+      <input type="text" id="msgInput" placeholder="Type a message..." />
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+
+  <!-- Firebase SDK (v9 modular) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+    import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+
+    // 🔹 Replace with your Firebase project config
+   // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyDrtGWk0KiJuN6toe7OFU30iWvNXOxfm0Q",
+  authDomain: "anonymous-chat-box.firebaseapp.com",
+  projectId: "anonymous-chat-box",
+  storageBucket: "anonymous-chat-box.firebasestorage.app",
+  messagingSenderId: "105774316207",
+  appId: "1:105774316207:web:8c3a4e74b6be1218daf25a",
+  measurementId: "G-VD7BCT1WC0"
+};
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const messagesRef = ref(db, "messages");
+
+    // Send message function (exposed to window for onclick)
+    window.sendMessage = function() {
+      const input = document.getElementById("msgInput");
+      const text = input.value.trim();
+      if (text === "") return;
+      push(messagesRef, { text: text, time: Date.now() });
+      input.value = "";
+    };
+
+    // Listen for new messages
+    const msgContainer = document.getElementById("messages");
+    onChildAdded(messagesRef, (snapshot) => {
+      const msg = snapshot.val();
+      const div = document.createElement("div");
+      div.className = "message";
+      div.innerText = "Anonymous: " + msg.text;
+      msgContainer.appendChild(div);
+      msgContainer.scrollTop = msgContainer.scrollHeight;
+    });
+  </script>
+</body>
+</html>
